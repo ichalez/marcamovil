@@ -137,6 +137,53 @@ dart pub global activate flutterfire_cli
 flutterfire configure
 ```
 
+## 8. Configurar la app móvil
+
+La app usa el mismo proyecto de Firebase que la web, pero cada plataforma necesita su propio
+**App ID**:
+
+1. Consola de Firebase → ⚙️ *Configuración del proyecto* → *Tus apps* → **Añadir app**:
+   - **Android**: nombre del paquete `com.marcamovil.marcamovil`. Copia el *ID de la app*
+     (`1:1234…:android:abcd…`). No hace falta descargar `google-services.json`.
+   - **iOS**: ID del paquete `com.marcamovil.marcamovil`. Copia el *ID de la app*
+     (`1:1234…:ios:abcd…`).
+2. Copia `mobile/config.example.json` a `mobile/config.json` y rellénalo:
+
+   ```json
+   {
+     "FIREBASE_API_KEY": "AIza... (la misma que en la web)",
+     "FIREBASE_PROJECT_ID": "marcamovil",
+     "FIREBASE_MESSAGING_SENDER_ID": "1234...",
+     "FIREBASE_STORAGE_BUCKET": "marcamovil.firebasestorage.app",
+     "FIREBASE_ANDROID_APP_ID": "1:1234...:android:abcd...",
+     "FIREBASE_IOS_APP_ID": "1:1234...:ios:abcd...",
+     "FIREBASE_IOS_BUNDLE_ID": "com.marcamovil.marcamovil",
+     "WEB_URL": "https://marcamovil.web.app"
+   }
+   ```
+
+   Estos valores **no son secretos**: la protección real son las reglas de seguridad. Puedes
+   subir `config.json` al repositorio. Si prefieres no hacerlo, guarda el contenido en GitHub →
+   *Settings → Secrets and variables → Actions* como secreto `MOBILE_CONFIG_JSON`.
+3. Haz push. GitHub Actions compila el APK con esa configuración.
+
+### Instalar el APK en Android
+
+1. En GitHub → pestaña **Actions** → la última ejecución verde de **CI** → *Artifacts* →
+   descarga `marcamovil-android-apk` (es un .zip con el `.apk` dentro).
+2. Pásalo al móvil y ábrelo. Android pedirá permiso para “instalar apps desconocidas”: concédelo
+   al navegador o al gestor de archivos.
+3. La primera vez que abras la cámara, acepta los permisos de cámara y micrófono.
+
+### Primera prueba recomendada
+
+1. Abre en el ordenador el panel demo: `https://<tu-web>/control/demo`.
+2. En el móvil: **Emisión manual** → overlay `https://<tu-web>/overlay/demo` → *Abrir cámara*.
+   Deberías ver el marcador demo encima de la cámara. (El demo no se sincroniza entre
+   dispositivos; para eso usa un partido real.)
+3. Para probar la emisión sin hacerla pública, crea en YouTube un directo **oculto** o
+   **privado** y usa su clave.
+
 ## Problemas frecuentes
 
 | Problema | Solución |
@@ -145,4 +192,6 @@ flutterfire configure
 | "No tienes permiso" al subir un escudo | Las reglas de Storage no están desplegadas, o no aceptaste el acceso a Firestore. Repite `firebase deploy --only storage` |
 | No puedo aceptar la invitación | Hay que verificar el email. Revisa el correo y pulsa "Ya lo he verificado" |
 | Google login: "unauthorized-domain" | Añade el dominio en Authentication → Configuración → Dominios autorizados |
+| La app solo muestra “Emisión manual” | El APK se compiló sin `config.json`/`MOBILE_CONFIG_JSON`, o falta el App ID de la plataforma |
+| En la app no puedo entrar con mi cuenta de Google | La app solo usa email y contraseña. Pulsa “¿No tienes contraseña?” y crea una con el email que te llega |
 | El overlay sale en blanco en OBS | Comprueba que la URL es la del partido (no la del panel) y que el partido existe |

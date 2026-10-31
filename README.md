@@ -4,7 +4,8 @@ Retransmisión de partidos de fútbol con marcador y gráficos en directo:
 
 - **Web (esta fase):** los clubes gestionan equipos, patrocinadores y partidos, y un operador controla el
   marcador desde el móvil o la tablet. El overlay HTML se actualiza en tiempo real.
-- **App móvil (fase 2):** Flutter (Android + iOS). Coge la cámara, superpone el overlay HTML y emite a YouTube por RTMP.
+- **App móvil:** Flutter (Android + iOS). Coge la cámara, superpone el overlay HTML y emite a YouTube por RTMP.
+  Detalles en [mobile/README.md](mobile/README.md).
 
 ```
  ┌──────────────────┐   Firestore (tiempo real)   ┌───────────────────────────┐
@@ -13,7 +14,7 @@ Retransmisión de partidos de fútbol con marcador y gráficos en directo:
  └──────────────────┘                                           │
                                                                 ▼
  ┌────────────────────────────────────────────┐    /overlay/:id (HTML transparente 1920×1080)
- │ Móvil emisor (fase 2)                      │ ◀──────────────┘
+ │ Móvil emisor (app Flutter)                 │ ◀──────────────┘
  │ cámara + WebView overlay → H.264 → RTMP ───┼──▶ YouTube Live
  └────────────────────────────────────────────┘
 ```
@@ -83,7 +84,8 @@ web/                                             App web (React + TypeScript + V
   src/overlay/                                   Gráficos del overlay
   src/pages/                                     Pantallas
 rules-test/                                      Pruebas de las reglas con el emulador de Firebase
-mobile/                                          App Flutter (fase 2)
+mobile/                                          App Flutter (Android + iOS) y plugin nativo de emisión
+.github/workflows/ci.yml                         CI: web, reglas, APK de Android y build de iOS
 docs/                                            Guías
 ```
 
@@ -104,11 +106,13 @@ Cada acción del panel se aplica dentro de una transacción. Así, si dos operad
 ```bash
 cd web && npm test               # lógica de reloj y eventos
 cd rules-test && npm install && npm test   # reglas de seguridad (necesita Java)
+cd mobile && flutter test                  # modelos de la app
 ```
 
 ## Hoja de ruta
 
 - [x] Fase 1: web, overlay, Firebase y multi-club
-- [ ] Fase 2: app Flutter (cámara + overlay + RTMP, calidad configurable, bitrate adaptativo, reconexión)
+- [x] Fase 2: app Flutter (cámara + overlay + RTMP, calidad configurable, bitrate adaptativo, reconexión)
+- [ ] Probar en móviles reales: Android (varios fabricantes) e iPhone
 - [ ] YouTube OAuth: crear la emisión desde la app (título, privacidad, miniatura)
 - [ ] Extras: estadísticas, alineaciones en pantalla, repeticiones
