@@ -41,7 +41,7 @@ export default function LoginPage() {
   return (
     <div className="login">
       <span className="brand">
-        Fútbol<span>Stream</span>
+        Marca<span>Móvil</span>
       </span>
       <div className="card stack">
         <h2>{mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}</h2>

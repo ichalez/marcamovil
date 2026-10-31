@@ -11,7 +11,7 @@
 
 ## 2. Crear el proyecto de Firebase
 
-1. Entra en https://console.firebase.google.com y pulsa **Crear un proyecto** (por ejemplo, `futbol-stream`).
+1. Entra en https://console.firebase.google.com y pulsa **Crear un proyecto** (por ejemplo, `marcamovil`).
    Google Analytics no hace falta.
 2. **Authentication** → *Comenzar* → en *Método de acceso* activa:
    - **Correo electrónico/contraseña**
@@ -34,9 +34,9 @@ Rellena `.env.local` con los valores del paso anterior:
 
 ```
 VITE_FIREBASE_API_KEY=AIza...
-VITE_FIREBASE_AUTH_DOMAIN=futbol-stream.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=futbol-stream
-VITE_FIREBASE_STORAGE_BUCKET=futbol-stream.firebasestorage.app
+VITE_FIREBASE_AUTH_DOMAIN=marcamovil.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=marcamovil
+VITE_FIREBASE_STORAGE_BUCKET=marcamovil.firebasestorage.app
 VITE_FIREBASE_MESSAGING_SENDER_ID=...
 VITE_FIREBASE_APP_ID=...
 ```

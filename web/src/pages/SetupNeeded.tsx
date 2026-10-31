@@ -5,7 +5,7 @@ export default function SetupNeeded() {
     <div className="page" style={{ maxWidth: 640 }}>
       <h1>
         <span className="brand">
-          Fútbol<span>Stream</span>
+          Marca<span>Móvil</span>
         </span>
       </h1>
       <div className="card stack">

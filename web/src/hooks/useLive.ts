@@ -17,7 +17,7 @@ export interface LiveStore {
 }
 
 export const DEMO_ID = 'demo';
-const DEMO_KEY = 'futbol-stream-demo-live';
+const DEMO_KEY = 'marcamovil-demo-live';
 
 function readDemo(): LiveState {
   try {

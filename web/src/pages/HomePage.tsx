@@ -14,7 +14,7 @@ export function TopBar({ children }: { children?: React.ReactNode }) {
   return (
     <div className="topbar">
       <Link to="/" className="brand">
-        Fútbol<span>Stream</span>
+        Marca<span>Móvil</span>
       </Link>
       <div className="grow">{children}</div>
       {user && (
