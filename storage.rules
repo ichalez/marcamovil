@@ -1,0 +1,16 @@
+rules_version = '2';
+
+// Escudos y logos: lectura pública (los carga el overlay), escritura solo para miembros del club.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /clubs/{clubId}/{folder}/{file} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.auth.uid in firestore.get(/databases/(default)/documents/clubs/$(clubId)).data.memberUids
+        && (request.resource == null || (
+          request.resource.size < 3 * 1024 * 1024
+          && request.resource.contentType.matches('image/.*')
+        ));
+    }
+  }
+}

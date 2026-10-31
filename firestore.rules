@@ -1,0 +1,72 @@
+rules_version = '2';
+
+// Modelo:
+//   clubs/{clubId}                      → club (miembros, roles, invitaciones)
+//   clubs/{clubId}/teams|sponsors|matches/{id} → solo miembros del club
+//   live/{matchId}                      → estado público del directo (lo lee el overlay sin login)
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function club(clubId) {
+      return get(/databases/$(database)/documents/clubs/$(clubId)).data;
+    }
+    function isMember(clubId) {
+      return signedIn() && request.auth.uid in club(clubId).memberUids;
+    }
+    function isAdmin(clubId) {
+      return signedIn() && club(clubId).roles[request.auth.uid] == 'admin';
+    }
+    function verifiedEmail() {
+      return signedIn() && request.auth.token.email_verified == true;
+    }
+
+    match /clubs/{clubId} {
+      // Miembros, o invitados (para ver la invitación; aceptarla exige email verificado).
+      allow read: if signedIn() && (
+        request.auth.uid in resource.data.memberUids ||
+        request.auth.token.email in resource.data.invitedEmails
+      );
+
+      allow create: if signedIn()
+        && request.resource.data.memberUids == [request.auth.uid]
+        && request.resource.data.roles == { (request.auth.uid): 'admin' }
+        && request.resource.data.invitedEmails == []
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0;
+
+      // Administradores: cualquier cambio, siempre que quede al menos un miembro.
+      allow update: if isAdmin(clubId) && request.resource.data.memberUids.size() > 0;
+
+      // Invitado con email verificado: solo puede añadirse a sí mismo como operador.
+      allow update: if verifiedEmail()
+        && request.auth.token.email in resource.data.invitedEmails
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberUids', 'invitedEmails', 'roles', 'memberInfo'])
+        && request.resource.data.memberUids.toSet() == resource.data.memberUids.toSet().union([request.auth.uid].toSet())
+        && request.resource.data.invitedEmails.toSet() == resource.data.invitedEmails.toSet().difference([request.auth.token.email].toSet())
+        && request.resource.data.roles.diff(resource.data.roles).affectedKeys().hasOnly([request.auth.uid])
+        && request.resource.data.roles[request.auth.uid] == 'operator'
+        && request.resource.data.memberInfo.diff(resource.data.memberInfo).affectedKeys().hasOnly([request.auth.uid]);
+
+      allow delete: if isAdmin(clubId);
+
+      match /{collection}/{docId} {
+        allow read, write: if isMember(clubId);
+      }
+    }
+
+    match /live/{matchId} {
+      // Público: lo carga el overlay en el móvil emisor / OBS sin iniciar sesión.
+      // No guardes aquí datos sensibles (la clave de emisión vive en clubs/{clubId}/matches).
+      allow read: if true;
+      allow create: if isMember(request.resource.data.clubId)
+        && request.resource.data.matchId == matchId;
+      allow update: if isMember(resource.data.clubId)
+        && request.resource.data.clubId == resource.data.clubId
+        && request.resource.data.matchId == matchId;
+      allow delete: if isMember(resource.data.clubId);
+    }
+  }
+}
