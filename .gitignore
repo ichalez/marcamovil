@@ -7,3 +7,4 @@ dist
 *.log
 firebase-debug.log*
 firestore-debug.log*
+mobile/build-config.json
